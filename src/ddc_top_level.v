@@ -54,7 +54,7 @@ module ddc_top_level #(
 
 
     // Instantiate the Delta-Sigma Modulator
-    mod2_dsm #(.DATA_WIDTH_WIDTH(DATA_WIDTH)) dsm_inst (
+    mod2_dsm #(.DATA_WIDTH(DATA_WIDTH)) dsm_inst (
         .clk(bclk),
         .rst(rst),
         .in_data(cic_out),
