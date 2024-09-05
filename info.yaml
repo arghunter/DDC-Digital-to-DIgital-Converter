@@ -8,7 +8,7 @@ project:
   clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
-  tiles: "8x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
+  tiles: "2x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
   top_module:  "tt_um_ddc_arghunter"
@@ -18,22 +18,13 @@ project:
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "project.v"
-    - "ddr_to_sdr_dual.v"
-    - "multi_ddr_to_sdr_dual.v"
-    - "full_adder.v"
+    - "cic3_interpolator.v"
+    - "ddc_top_level.v"
+    - "i2s_rx_64.v"
     - "adder_23bit.v"
-    - "adder_16x23bi.v"
-    - "integrator1.v"
-    - "integrator2.v"
-    - "integrator3.v"
-    - "integrator_top_module.v"
-    - "comb.v"
-    - "cic.v"
-    - "delay_line.v"
-    - "delay_module.v"
-    - "mux_shift.v"
-    - "i2s_bus.v"
-    - "supermic_top_module.v"
+    - "lsfr.v"
+    - "mod2_dsm.v"
+
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
