@@ -21,7 +21,6 @@ project:
     - "cic3_interpolator.v"
     - "ddc_top_level.v"
     - "i2s_rx_64x.v"
-    - "adder_23bit.v"
     - "lsfr.v"
     - "mod2_dsm.v"
 
