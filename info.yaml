@@ -1,5 +1,5 @@
 # Tiny Tapeout project information
-project:
+project: 
   title:        "DDC"      # Project title
   author:       "Armaan Gomes"      # Your name
   discord:      "arghunter"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
