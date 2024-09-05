@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 
-
 module mod2_dsm #(
     parameter DATA_WIDTH = 16  // Parameter to specify the input data width
 )(

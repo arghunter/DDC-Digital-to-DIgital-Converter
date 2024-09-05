@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 
-
 module ddc_top_level #(
     parameter CIC_ORDER = 3,         // Order of the CIC filter
     parameter CIC_INTERPOLATION = 64, // Interpolation factor for the CIC filter
@@ -11,19 +10,25 @@ module ddc_top_level #(
     input wire bclk,            // Bit clock (3.072 MHz)
     input wire lrclk,           // Left/Right clock (48 kHz)
     input wire sdin,            // Serial data input
-
-	output wire pdm_out               // bitstream output at clock frequency
+    input wire lfsr_en,         // enable LFSR dither
+	output wire pdm_out_left,               // bitstream output at clock frequency
+    output wire pdm_out_right,               // bitstream output at clock frequency    
+	output wire clk_out_left,               // bitstream clk output at clock frequency
+    output wire clk_out_right               // bitstream clk output at clock frequency
 );
 
     // Internal signals
-    wire [DATA_WIDTH+2+18:0] cic_out;
-    wire cic_valid;
-    wire [DATA_WIDTH-1:0] left_data;  // Parallel output for left channel
-    wire [DATA_WIDTH-1:0] right_data;  // Parallel output for right channel
+    wire signed [DATA_WIDTH-1:0] cic_out_left;
+    wire signed [DATA_WIDTH-1:0] cic_out_right;
+    wire signed [DATA_WIDTH-1:0] left_data;  // Parallel output for left channel
+    wire signed [DATA_WIDTH-1:0] right_data;  // Parallel output for right channel
     wire right_data_valid;                       // Right data valid signal
     wire left_data_valid;                       // Left data valid signal
+    wire lfsr_bitstream;                        //LFSR bistream - same used for both left and right delta sigma modulators
     
-
+    assign clk_out_left = bclk;
+    assign clk_out_right = bclk;    
+    
     // Instantiate the I2S receiver
     i2s_rx_64x #(
         .DATA_WIDTH(DATA_WIDTH)
@@ -48,31 +53,48 @@ module ddc_top_level #(
         .rst(rst),
         .in_data(left_data),
         .in_valid(left_data_valid),
-        .out_data(cic_out),
-        .out_valid(cic_valid)
+        .out_data(cic_out_left)
     );
-
-
-    // Instantiate the Delta-Sigma Modulator
-    mod2_dsm #(.DATA_WIDTH(DATA_WIDTH)) dsm_inst (
+    
+    // Instantiate the CIC Interpolator
+    cic3_interpolator #(
+        .R(CIC_INTERPOLATION),
+        .DATA_WIDTH(DATA_WIDTH)
+    ) cic_right_inst (
         .clk(bclk),
         .rst(rst),
-        .in_data(cic_out),
-        .out_bitstream(pdm_out) // PDM bitstream at clk frequency
+        .in_data(right_data),
+        .in_valid(right_data_valid),
+        .out_data(cic_out_right)
     );    
 
 
-// Logarithm base 2 for sizing registers
+    // Instantiate the Delta-Sigma Modulator
+    mod2_dsm #(.DATA_WIDTH(DATA_WIDTH)) dsm_left_inst (
+        .clk(bclk),
+        .rst(rst),
+        .in_data(cic_out_left),
+        .in_dither(lfsr_bitstream),
+        .out_bitstream(pdm_out_left) // PDM bitstream at clk frequency
+    );    
 
-function integer clog2;
-    input integer value;
-    integer i;
-    begin
-        clog2 = 0;
-        for (i = value; i > 0; i = i >> 1)
-            clog2 = clog2 + 1;
-    end
-endfunction
+    // Instantiate the Delta-Sigma Modulator
+    mod2_dsm #(.DATA_WIDTH(DATA_WIDTH)) dsm_right_inst (
+        .clk(bclk),
+        .rst(rst),
+        .in_data(cic_out_right),
+        .in_dither(lfsr_bitstream),
+        .out_bitstream(pdm_out_right) // PDM bitstream at clk frequency
+    );   
+    
+    //16 bit LFSR sequence henerator
+    
+    lfsr16 lsfr_inst (
+        .clk(bclk),
+        .rst(rst),
+        .en(lfsr_en),
+        .lfsr_out(lfsr_bitstream) // LFSR bitstream at clk frequency
+    );  
 
 endmodule
 
