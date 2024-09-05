@@ -21,6 +21,7 @@ wire rst;
   assign uio_out = 0;
   assign uio_oe[7:0]  = 0;
   assign uio_out[7:0]  = 0;
+  assign uo_out[7:4] = 0;
   assign rst = !rst_n;
   generate
     ddc_top_level  u_ddc_top_level  (
@@ -28,10 +29,15 @@ wire rst;
         .bclk(ui_in[0]),
         .lrclk(ui_in[1]),
         .sdin(ui_in[2]),
-        .pdm_out(uo_out[0])
+        .lfsr_en(ui_in[3]),
+        .pdm_out_left(uo_out[0]),
+        .pdm_out_right(uo_out[1]),
+        .clk_out_left(uo_out[2]),
+        .clk_out_right(uo_out[3])
+        
     );    
   endgenerate
   // List all unused inputs to prevent warnings
-    wire _unused = &{ena, clk,ui_in[7:3],uio_in[7:0], 1'b0};
+    wire _unused = &{ena, clk,ui_in[7:4],uio_in[7:0], 1'b0};
 
 endmodule
